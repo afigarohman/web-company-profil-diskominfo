@@ -26,6 +26,9 @@
 
       <!-- Standar Pelayanan Section -->
       <StandarPelayanan />
+
+      <!-- Galeri Section -->
+      <Galeri />
     </div>
   </div>
 </template>
@@ -38,6 +41,7 @@ import VisiMisi from '@/components/profile/VisiMisi.vue'
 import StrukturOrganisasi from '@/components/profile/StrukturOrganisasi.vue'
 import TugasPokokFungsi from '@/components/profile/TugasPokokFungsi.vue'
 import StandarPelayanan from '@/components/profile/StandarPelayanan.vue'
+import Galeri from '@/components/profile/Galeri.vue'
 
 export default {
   name: 'Profil',
@@ -48,7 +52,8 @@ export default {
     VisiMisi,
     StrukturOrganisasi,
     TugasPokokFungsi,
-    StandarPelayanan
+    StandarPelayanan,
+    Galeri
   }
 }
 </script>

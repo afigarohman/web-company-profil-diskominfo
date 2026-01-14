@@ -4,37 +4,11 @@
     <div class="detail-header">
       <div class="container mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-lg p-6">
-          <div class="flex items-center justify-between mb-6">
-            <div>
-              <h1 class="text-3xl font-bold text-gray-800 mb-2">
-                {{ laporan.judul || 'Laporan Pengaduan Pelayanan Publik' }}
-              </h1>
-              <div class="flex items-center space-x-4 text-sm text-gray-600">
-                <span class="flex items-center">
-                  <i class="fas fa-calendar-alt mr-2"></i>
-                  {{ formatDate(laporan.tanggal_publikasi || laporan.created_at) }}
-                </span>
-                <span class="flex items-center">
-                  <i class="fas fa-tag mr-2"></i>
-                  Kategori: {{ laporan.kategori || 'Laporan Pengaduan Pelayanan Publik' }}
-                </span>
-                <span class="flex items-center">
-                  <i class="fas fa-eye mr-2"></i>
-                  {{ laporan.views || 0 }} Dilihat
-                </span>
-              </div>
-            </div>
-            <div class="flex space-x-2">
-              <button @click="shareLaporan" class="btn-share">
-                <i class="fas fa-share-alt"></i>
-                Bagikan
-              </button>
-              <button @click="downloadLaporan" v-if="laporan.file_lampiran" class="btn-download">
-                <i class="fas fa-download"></i>
-                Download
-              </button>
-            </div>
-          </div>
+           <div class="flex items-start mb-2">
+             <h1 class="text-3xl font-bold text-gray-800">
+               {{ laporan.judul || 'Laporan Pengaduan Pelayanan Publik' }}
+             </h1>
+           </div>
         </div>
       </div>
     </div>
@@ -46,79 +20,7 @@
           <!-- Main Content -->
           <div class="lg:col-span-2">
             <div class="bg-white rounded-lg shadow-lg p-6">
-              <!-- Laporan Information -->
-              <div class="mb-8">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">
-                  Informasi Laporan
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="info-item">
-                    <label class="text-sm font-medium text-gray-600">Periode Laporan</label>
-                    <p class="text-lg font-semibold text-gray-800">
-                      {{ laporan.bulan || 'Juni' }} {{ laporan.tahun || '2025' }}
-                    </p>
-                  </div>
-                  <div class="info-item">
-                    <label class="text-sm font-medium text-gray-600">Status Publikasi</label>
-                    <span :class="getStatusClass(laporan.is_published)">
-                      {{ laporan.is_published ? 'Dipublikasi' : 'Draft' }}
-                    </span>
-                  </div>
-                  <div class="info-item">
-                    <label class="text-sm font-medium text-gray-600">Tanggal Publikasi</label>
-                    <p class="text-lg font-semibold text-gray-800">
-                      {{ formatDate(laporan.tanggal_publikasi) }}
-                    </p>
-                  </div>
-                  <div class="info-item">
-                    <label class="text-sm font-medium text-gray-600">Dibuat Oleh</label>
-                    <p class="text-lg font-semibold text-gray-800">
-                      {{ laporan.admin?.name || 'Admin Diskominfo' }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Statistics -->
-              <div class="mb-8">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">
-                  Statistik Pengaduan
-                </h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div class="stat-card bg-blue-50 border-l-4 border-blue-500">
-                    <div class="p-4">
-                      <div class="text-2xl font-bold text-blue-600">
-                        {{ laporan.total_pengaduan || 0 }}
-                      </div>
-                      <div class="text-sm text-gray-600">Total Pengaduan</div>
-                    </div>
-                  </div>
-                  <div class="stat-card bg-yellow-50 border-l-4 border-yellow-500">
-                    <div class="p-4">
-                      <div class="text-2xl font-bold text-yellow-600">
-                        {{ laporan.pengaduan_diproses || 0 }}
-                      </div>
-                      <div class="text-sm text-gray-600">Sedang Diproses</div>
-                    </div>
-                  </div>
-                  <div class="stat-card bg-green-50 border-l-4 border-green-500">
-                    <div class="p-4">
-                      <div class="text-2xl font-bold text-green-600">
-                        {{ laporan.pengaduan_selesai || 0 }}
-                      </div>
-                      <div class="text-sm text-gray-600">Selesai</div>
-                    </div>
-                  </div>
-                  <div class="stat-card bg-red-50 border-l-4 border-red-500">
-                    <div class="p-4">
-                      <div class="text-2xl font-bold text-red-600">
-                        {{ laporan.pengaduan_ditolak || 0 }}
-                      </div>
-                      <div class="text-sm text-gray-600">Ditolak</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <!-- Informasi laporan dihapus karena sudah ada di hero section -->
 
               <!-- Description -->
               <div class="mb-8">
@@ -251,7 +153,7 @@
                         </div>
                         <iframe 
                           v-if="laporan.file_lampiran"
-                          :src="laporan.file_lampiran + '#toolbar=0&navpanes=0&scrollbar=0'"
+                          :src="getFileUrl(laporan.file_lampiran) + '#toolbar=0&navpanes=0&scrollbar=0'"
                           class="w-full h-96"
                           frameborder="0">
                         </iframe>
@@ -309,14 +211,17 @@
               <h3 class="text-lg font-semibold text-gray-800 mb-4">Laporan Terkait</h3>
               <div class="space-y-3">
                 <div v-for="report in relatedReports" :key="report.id" class="related-item">
-                  <a :href="report.link" class="block hover:bg-gray-50 p-3 rounded-lg transition-colors">
+                  <router-link
+                    :to="{ name: report.routeName, params: { id: report.id } }"
+                    class="block hover:bg-gray-50 p-3 rounded-lg transition-colors"
+                  >
                     <h4 class="font-medium text-gray-800 text-sm mb-1">
                       {{ report.title }}
                     </h4>
                     <p class="text-xs text-gray-600">
                       {{ report.date }}
                     </p>
-                  </a>
+                  </router-link>
                 </div>
               </div>
             </div>
@@ -351,53 +256,68 @@
 </template>
 
 <script>
+import apiClient, { publikasiService } from '@/service/api.js';
+
 export default {
   name: 'LaporanDetail',
-  props: {
-    laporan: {
-      type: Object,
-      required: true,
-      default: () => ({
-        judul: 'Laporan Pengaduan Pelayanan Publik Dinas Komunikasi dan Informatika Kota Madiun Bulan Juni Tahun 2025',
-        bulan: 'Juni',
-        tahun: '2025',
-        deskripsi: 'Berikut ini terlampir Laporan Pengaduan Pelayanan Publik Dinas Komunikasi dan Informatika Kota Madiun Bulan Juni Tahun 2025',
-        is_published: true,
-        tanggal_publikasi: new Date(),
+  data() {
+    return {
+      laporan: {
+        judul: '',
+        bulan: '',
+        tahun: '',
+        deskripsi: '',
+        is_published: false,
+        tanggal_publikasi: null,
         total_pengaduan: 0,
         pengaduan_diproses: 0,
         pengaduan_selesai: 0,
         pengaduan_ditolak: 0,
         file_lampiran: null,
-        admin: { name: 'Admin Diskominfo' }
-      })
-    }
-  },
-  data() {
-    return {
+        admin: { name: 'Admin Diskominfo' },
+        kategori: ''
+      },
       showPreview: false,
       isDownloading: false,
       downloadProgress: 0,
-      relatedReports: [
-        {
-          id: 1,
-          title: 'Laporan Pengaduan Pelayanan Publik Bulan Mei 2025',
-          date: '23 Jun 2025',
-          link: '#'
-        },
-        {
-          id: 2,
-          title: 'Laporan Pengaduan Pelayanan Publik Bulan April 2025',
-          date: '23 May 2025',
-          link: '#'
-        },
-        {
-          id: 3,
-          title: 'Laporan Pengaduan Pelayanan Publik Bulan Maret 2025',
-          date: '23 Apr 2025',
-          link: '#'
-        }
-      ]
+      relatedReports: [],
+      loading: false,
+      error: null
+    }
+  },
+  async created() {
+    const id = this.$route.params.id;
+    if (!id) return;
+
+    try {
+      this.loading = true;
+      const response = await publikasiService.getPublikasiById(id);
+      const data = response.data.data || response.data;
+
+      const meta = data.meta || {};
+
+      this.laporan = {
+        judul: data.judul,
+        bulan: meta.bulan || meta.period || '',
+        tahun: meta.tahun || (data.published_at ? new Date(data.published_at).getFullYear().toString() : ''),
+        deskripsi: data.isi || data.ringkasan,
+        is_published: data.is_published,
+        tanggal_publikasi: data.published_at || data.created_at,
+        total_pengaduan: meta.total_pengaduan || meta.total_laporan || 0,
+        pengaduan_diproses: meta.pengaduan_diproses || 0,
+        pengaduan_selesai: meta.pengaduan_selesai || 0,
+        pengaduan_ditolak: meta.pengaduan_ditolak || 0,
+        file_lampiran: data.file_path,
+        admin: { name: 'Admin Diskominfo' },
+        kategori: data.kategori
+      };
+      // Setelah mendapatkan laporan utama, ambil laporan terkait
+      await this.fetchRelatedReports(data.kategori, data.id);
+    } catch (err) {
+      console.error('Error fetching laporan detail:', err);
+      this.error = 'Gagal memuat detail laporan.';
+    } finally {
+      this.loading = false;
     }
   },
   methods: {
@@ -414,6 +334,14 @@ export default {
       return isPublished 
         ? 'px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium'
         : 'px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium';
+    },
+    getFileUrl(path) {
+      if (!path) return '';
+      if (path.startsWith('http')) return path;
+      const base = apiClient.defaults.baseURL
+        ? apiClient.defaults.baseURL.replace(/\/api\/?$/, '')
+        : '';
+      return base + path;
     },
     getFileName(filePath) {
       if (!filePath) return 'N/A';
@@ -469,7 +397,7 @@ export default {
           
           // Download file
           const link = document.createElement('a');
-          link.href = this.laporan.file_lampiran;
+          link.href = this.getFileUrl(this.laporan.file_lampiran);
           link.download = this.getFileName(this.laporan.file_lampiran);
           document.body.appendChild(link);
           link.click();
@@ -490,6 +418,27 @@ export default {
           this.isDownloading = false;
           this.downloadProgress = 0;
         }
+      }
+    },
+    async fetchRelatedReports(kategori, excludeId) {
+      try {
+        const response = await publikasiService.getAllPublikasi({ kategori });
+        const list = response.data.data || response.data || [];
+        const routeName =
+          kategori === 'penerima' ? 'penerima.detail' : 'pengaduan.detail';
+
+        this.relatedReports = list
+          .filter(item => item.id !== excludeId)
+          .slice(0, 3)
+          .map(item => ({
+            id: item.id,
+            title: item.judul,
+            date: this.formatDate(item.published_at || item.created_at),
+            routeName
+          }));
+      } catch (error) {
+        console.error('Error fetching related reports:', error);
+        this.relatedReports = [];
       }
     }
   }

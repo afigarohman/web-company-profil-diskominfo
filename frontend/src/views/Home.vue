@@ -2,10 +2,11 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import HeroSection from '../components/landing/HeroSection.vue';
-import AboutSection from '../components/landing/AboutSection.vue';
+import AboutSection from '..//components/landing/AboutSection.vue';
 import Kerjasama from "../components/landing/Kerjasama.vue";
 import NewsSection from "@/components/landing/NewsSection.vue";
 import ServiceSection from "@/components/landing/ServiceSection.vue";
+import InfografisSection from "@/components/landing/InfografisSection.vue";
 import BannerLinkMadiun from "@/components/landing/BannerLinkMadiun.vue";
 
 // state untuk simpan data
@@ -42,6 +43,7 @@ const fetchAgendas = () => {
   <AboutSection />
   <NewsSection />
   <ServiceSection />
+  <InfografisSection />
   <Kerjasama />
   <BannerLinkMadiun />
 </template>

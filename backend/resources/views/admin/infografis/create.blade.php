@@ -15,16 +15,19 @@
                 <input type="text" name="judul" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label for="deskripsi" class="form-label">Deskripsi</label>
-                <textarea name="deskripsi" class="form-control" required></textarea>
+                <label for="deskripsi" class="form-label">Deskripsi (opsional)</label>
+                <textarea name="deskripsi" class="form-control" placeholder="Boleh dikosongkan"></textarea>
             </div>
             <div class="mb-3">
                 <label for="tanggal" class="form-label">Tanggal</label>
                 <input type="date" name="tanggal" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label for="gambar" class="form-label">Gambar</label>
-                <input type="file" name="gambar" class="form-control" required>
+                <label class="form-label d-block">Gambar (maksimal 3 gambar)</label>
+                <small class="text-muted d-block mb-2">Pilih hingga 3 gambar. Setiap kolom bersifat opsional.</small>
+                <input type="file" name="gambar[]" class="form-control mb-2" accept="image/*">
+                <input type="file" name="gambar[]" class="form-control mb-2" accept="image/*">
+                <input type="file" name="gambar[]" class="form-control mb-2" accept="image/*">
             </div>
             <button type="submit" class="btn btn-primary">Simpan</button>
         </form>

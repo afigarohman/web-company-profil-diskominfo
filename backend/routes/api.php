@@ -28,6 +28,8 @@ use App\Http\Controllers\Api\CommentApiController;
 use App\Http\Controllers\Api\FaqCategoryController;
 use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\PublikasiApiController;
+use App\Http\Controllers\Api\InfografisApiController;
+use App\Http\Controllers\Api\GaleriApiController;
 use App\Http\Controllers\Api\ProfilePageController;
 use App\Http\Controllers\Api\NewProfilePageController;
 use App\Http\Controllers\Api\SearchController;
@@ -91,6 +93,14 @@ Route::get('publikasi/statistics', [PublikasiApiController::class, 'statistics']
 Route::get('publikasi/months', [PublikasiApiController::class, 'getMonths']);
 Route::get('publikasi/years', [PublikasiApiController::class, 'getYears']);
 Route::get('publikasi/{publikasi}', [PublikasiApiController::class, 'show']);
+
+// Public API routes for infografis
+Route::get('infografis', [InfografisApiController::class, 'index']);
+Route::get('infografis/{infografis}', [InfografisApiController::class, 'show']);
+
+// Public API routes for galeri
+Route::get('galeri', [GaleriApiController::class, 'index']);
+Route::get('galeri/{galeri}', [GaleriApiController::class, 'show']);
 
 // Public API routes for laporan pengaduan admin (kept for backward compatibility)
 Route::get('laporan-pengaduan-admin', [\App\Http\Controllers\Api\LaporanPengaduanAdminApiController::class, 'index']);

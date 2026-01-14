@@ -13,6 +13,8 @@ import SurveiKepuasan from "@/views/SurveiKepuasan.vue";
 import SurveiEvaluasi from "@/views/SurveiEvaluasi.vue";
 import RadioSuaraMadiun from "@/views/RadioSuaraMadiun.vue";
 import LayananPengaduanAI from "@/views/LayananPengaduanAI.vue";
+import InfoGrafis from "@/views/InfoGrafis.vue";
+import InfoGrafisDetail from "@/views/InfoGrafisDetail.vue";
 
 const routes = [
   
@@ -81,6 +83,11 @@ const routes = [
     component: LaporanPenerima,
   },
   {
+    path: '/penerima/:id',
+    name: 'penerima.detail',
+    component: LaporanDetail,
+  },
+  {
     path: '/surveikepuasan',
     name: 'kepuasan',
     component: SurveiKepuasan,
@@ -89,6 +96,16 @@ const routes = [
     path: '/surveievaluasi',
     name: 'evaluasi',
     component: SurveiEvaluasi,
+  },
+  {
+    path: '/infografis',
+    name: 'infografis',
+    component: InfoGrafis,
+  },
+  {
+    path: '/infografis/:id',
+    name: 'infografis.detail',
+    component: InfoGrafisDetail,
   },
   {
     path: '/radio',

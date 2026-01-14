@@ -113,13 +113,16 @@ class ProfilController extends Controller
 
     private function categories()
     {
+        // Key = nilai yang disimpan di kolom `kategori` (dipakai API & frontend)
+        // Value = label yang tampil di dropdown admin
         return [
-            'Tentang',
-            'Visi Misi',
-            'Struktur Organisasi',
-            'Tugas dan Fungsi',
-            'Sejarah',
-            'Lainnya'
+            'sekilas-dinas'       => 'Sekilas Dinas',
+            'visi-misi'           => 'Visi & Misi',
+            'struktur-organisasi' => 'Struktur Organisasi',
+            'tugas-pokok-fungsi'  => 'Tugas Pokok & Fungsi',
+            'standar-pelayanan'   => 'Standar Pelayanan',
+            'kantor-dinas'        => 'Kantor Dinas',
+            'tentang'             => 'Tentang (Profil Lengkap)',
         ];
     }
 } 

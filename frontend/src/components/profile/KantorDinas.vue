@@ -9,8 +9,13 @@
         <div class="w-32 h-1 bg-blue-600 mx-auto"></div>
       </div>
 
-      <!-- Content -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+      <!-- Jika ada konten dari admin (tabel profil), tampilkan langsung -->
+      <div v-if="profilData?.konten" class="bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto">
+        <div v-html="profilData.konten"></div>
+      </div>
+
+      <!-- Jika belum ada konten di admin, gunakan tampilan default lama -->
+      <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
         <!-- Left Column - Address and Hours -->
         <div class="space-y-8">
           <!-- Address -->
@@ -71,10 +76,13 @@
 </template>
 
 <script>
+import { profilService } from '@/service/api.js'
+
 export default {
   name: 'KantorDinas',
   data() {
     return {
+      profilData: null,
       officeData: null,
       loading: false
     }
@@ -86,12 +94,12 @@ export default {
     async fetchOfficeData() {
       try {
         this.loading = true
-        const response = await fetch('http://localhost:8000/api/profile-page/kantor-dinas')
-        const data = await response.json()
-        this.officeData = data
+        // Ambil konten Kantor Dinas dari tabel profil (kategori: kantor-dinas)
+        const response = await profilService.getProfilByCategory('kantor-dinas')
+        this.profilData = response.data
       } catch (error) {
         console.error('Error fetching office data:', error)
-        this.officeData = null
+        this.profilData = null
       } finally {
         this.loading = false
       }

@@ -17,7 +17,9 @@
                 <div class="col-md-4 mb-4">
                     <div class="card border-0 shadow-sm">
                         <!-- Menampilkan gambar infografis -->
-                        <img src="{{ asset('storage/' . $infografisItem->gambar) }}" class="card-img-top" alt="Infografis">
+                        @if ($infografisItem->gambar_url)
+                            <img src="{{ $infografisItem->gambar_url }}" class="card-img-top" alt="Infografis">
+                        @endif
                         <div class="card-body">
                             <!-- Menampilkan judul dan tanggal infografis -->
                             <h5 class="card-title">{{ $infografisItem->judul }}</h5>

@@ -13,34 +13,40 @@
       <!-- Content -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <!-- Dynamic Cards -->
-        <div
+        <button
           v-for="profil in standarPelayananList"
           :key="profil.id"
-          class="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300"
+          type="button"
+          class="text-left bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          @click="openProfil(profil)"
         >
           <!-- Image Section with Date Overlay -->
-          <div v-if="profil.gambar" class="relative">
-            <img :src="`http://localhost:8000/storage/${profil.gambar}`" :alt="profil.title" class="w-full object-contain bg-gray-50 max-h-[900px]">
+          <div v-if="profil.gambar_url || profil.gambar" class="relative">
+            <img
+              :src="profil.gambar_url || buildStorageUrl(profil.gambar)"
+              :alt="profil.displayTitle"
+              class="w-full object-cover bg-gray-50 h-48"
+            >
             <!-- Date overlay at bottom left -->
             <div class="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-2 rounded-md text-sm font-medium">
-              {{ formatDate(profil.tanggal || profil.created_at) }}
+              {{ profil.displayDate }}
             </div>
           </div>
 
           <!-- No Image Fallback -->
           <div v-else class="p-6">
-            <h4 class="text-xl font-bold text-gray-800 mb-2">{{ profil.title || 'Judul Tidak Tersedia' }}</h4>
+            <h4 class="text-xl font-bold text-gray-800 mb-2">{{ profil.displayTitle }}</h4>
             <div class="flex items-center justify-between text-sm">
-              <span class="text-gray-500">{{ formatDate(profil.tanggal || profil.created_at) }}</span>
+              <span class="text-gray-500">{{ profil.displayDate }}</span>
               <div class="flex items-center text-green-600">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 0 0118 0z"></path>
                 </svg>
                 Tersedia
               </div>
             </div>
           </div>
-        </div>
+        </button>
 
         <!-- No data message -->
         <div v-if="!standarPelayananList || standarPelayananList.length === 0" class="col-span-full text-center py-12">
@@ -83,13 +89,18 @@ export default {
   methods: {
     async fetchStandarPelayanan() {
       try {
-        const response = await profilService.getProfilByCategory('Standar Pelayanan')
-        // Handle both single item and array responses
-        if (response.data) {
-          this.standarPelayananList = Array.isArray(response.data) ? response.data : [response.data]
-        } else {
-          this.standarPelayananList = []
-        }
+        // Kategori mengikuti isian pada menu Profil admin
+        const response = await profilService.getProfilByCategory('standar-pelayanan')
+        // Handle both single item and array responses, normalisasi field
+        const raw = response.data
+        const items = Array.isArray(raw) ? raw : (raw ? [raw] : [])
+        this.standarPelayananList = items.map(item => ({
+          ...item,
+          displayTitle: item.title || item.judul || 'Judul Tidak Tersedia',
+          displayDate: this.formatDate(item.tanggal || item.created_at),
+          pdf_url: item.pdf_url || (item.pdf ? this.buildStorageUrl(item.pdf) : null),
+          gambar_url: item.gambar_url || (item.gambar ? this.buildStorageUrl(item.gambar) : null)
+        }))
       } catch (error) {
         console.error('Error fetching standar pelayanan:', error)
         this.standarPelayananList = []
@@ -103,6 +114,16 @@ export default {
         month: 'long',
         day: 'numeric'
       })
+    },
+    buildStorageUrl(path) {
+      if (!path) return ''
+      const base = import.meta?.env?.VITE_API_BASE_URL?.replace(/\/api$/, '') || 'http://localhost:8000'
+      return `${base}/storage/${path}`
+    },
+    openProfil(profil) {
+      if (profil?.pdf_url) {
+        window.open(profil.pdf_url, '_blank', 'noopener,noreferrer')
+      }
     }
   }
 }

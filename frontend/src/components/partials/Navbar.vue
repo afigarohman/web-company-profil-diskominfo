@@ -355,7 +355,7 @@ const navItems = ref([
       { name: 'Madiun Today', link: 'https://madiuntoday.id/' },
       { name: 'Kabar Warga', link: '/kabarwarga' },
       { name: 'Arsip Berita', link: 'https://kominfo.madiunkota.go.id/arsipberita' },
-      { name: 'Radio Suara Madiun', link: '/radio' },
+      
       { name: 'Siaran Pers Madiun', link: '/siaranpers' },
     ]
   },
@@ -367,8 +367,8 @@ const navItems = ref([
     type: 'dropdown',
     items: [
       { name: 'PPID Kota Madiun', link: 'https://ppid.madiunkota.go.id/' },
-      { name: 'Radio Suara Madiun', link: '#info-sertamerta' },
-      { name: 'CSIRT Kota Madiun', link: '#info-setiapsaat' },
+      { name: 'Radio Suara Madiun', link: '/radio' },
+      { name: 'CSIRT Kota Madiun', link: 'https://csirt.madiunkota.go.id/' },
     ]
   },
   {

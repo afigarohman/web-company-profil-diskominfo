@@ -71,6 +71,14 @@
                                     <a href="{{ route('admin.publikasi.show', $item->id) }}" class="btn btn-sm btn-info">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    <form action="{{ route('admin.publikasi.toggle-publish', $item->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-sm {{ $item->is_published ? 'btn-secondary' : 'btn-success' }}" 
+                                                title="{{ $item->is_published ? 'Jadikan Draft' : 'Publikasikan' }}">
+                                            <i class="fas {{ $item->is_published ? 'fa-eye-slash' : 'fa-upload' }}"></i>
+                                        </button>
+                                    </form>
                                     <a href="{{ route('admin.publikasi.edit', $item->id) }}" class="btn btn-sm btn-warning">
                                         <i class="fas fa-edit"></i>
                                     </a>

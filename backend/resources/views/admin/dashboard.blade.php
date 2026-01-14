@@ -81,7 +81,7 @@
             <!-- Reports Chart -->
             <div class="chart-card">
                 <div class="chart-header">
-                    <h4><i class="fas fa-file-alt"></i> Status Laporan</h4>
+                    <h4><i class="fas fa-file-alt"></i> Status Dokumen</h4>
                 </div>
                 <div class="chart-content">
                     <canvas id="reportsChart" width="400" height="300"></canvas>

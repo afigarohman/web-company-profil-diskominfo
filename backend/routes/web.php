@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\BeritaController;
 use App\Http\Controllers\Admin\CommentController;
 use App\Http\Controllers\Admin\InfografisController;
+use App\Http\Controllers\Admin\GaleriController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\ProfilController;
 use App\Http\Controllers\Admin\FaqCategoryController;
@@ -139,6 +140,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/infografis/{infografis}', [InfografisController::class, 'update'])->name('infografis.update');
         Route::delete('/infografis/{infografis}', [InfografisController::class, 'destroy'])->name('infografis.destroy');
 
+        // Route untuk galeri (CRUD lengkap)
+        Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri.index');
+        Route::get('/galeri/create', [GaleriController::class, 'create'])->name('galeri.create');
+        Route::post('/galeri', [GaleriController::class, 'store'])->name('galeri.store');
+        Route::get('/galeri/{galeri}/edit', [GaleriController::class, 'edit'])->name('galeri.edit');
+        Route::put('/galeri/{galeri}', [GaleriController::class, 'update'])->name('galeri.update');
+        Route::delete('/galeri/{galeri}', [GaleriController::class, 'destroy'])->name('galeri.destroy');
+
         // Route untuk profil (CRUD)
         Route::resource('profil', ProfilController::class)->except(['show']);
 
@@ -156,5 +165,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Route untuk Publikasi (CRUD)
         Route::resource('publikasi', \App\Http\Controllers\Admin\PublikasiController::class);
         Route::get('/publikasi/{publikasi}/download', [\App\Http\Controllers\Admin\PublikasiController::class, 'download'])->name('publikasi.download');
+        Route::patch('/publikasi/{publikasi}/toggle-publish', [\App\Http\Controllers\Admin\PublikasiController::class, 'togglePublish'])->name('publikasi.toggle-publish');
     });
 });

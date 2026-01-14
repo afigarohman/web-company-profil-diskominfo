@@ -1,13 +1,13 @@
 <template>
   <div>
     <HeroSection />
-    
+
     <!-- Loading State -->
     <div v-if="loading" class="loading-container">
       <div class="loading-spinner"></div>
       <p>Memuat data laporan pengaduan...</p>
     </div>
-    
+
     <!-- Error State -->
     <div v-else-if="error" class="error-container">
       <div class="error-message">
@@ -16,105 +16,10 @@
         <button @click="fetchLaporanPengaduan" class="retry-button">Coba Lagi</button>
       </div>
     </div>
-    
-    <!-- Content -->
-    <div v-else>
 
-      
-      <!-- Statistics Section -->
-      <div v-if="statistics" class="statistics-section">
-        <div class="container mx-auto px-4 py-8">
-          <h2 class="text-2xl font-bold text-center mb-8">Statistik Laporan Pengaduan</h2>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="stat-card bg-blue-500 text-white">
-              <h3>Total Laporan</h3>
-              <p class="text-3xl font-bold">{{ statistics.total_published || 0 }}</p>
-            </div>
-            <div class="stat-card bg-green-500 text-white">
-              <h3>Total Pengaduan</h3>
-              <p class="text-3xl font-bold">{{ statistics.total_reports || 0 }}</p>
-            </div>
-            <div class="stat-card bg-blue-600 text-white">
-              <h3>Diproses</h3>
-              <p class="text-3xl font-bold">{{ statistics.processed_reports || 0 }}</p>
-            </div>
-            <div class="stat-card bg-green-600 text-white">
-              <h3>Selesai</h3>
-              <p class="text-3xl font-bold">{{ statistics.completed_reports || 0 }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Filter Section -->
-      <div class="filter-section bg-gray-100 py-6">
-        <div class="container mx-auto px-4">
-          <div class="flex flex-wrap gap-4 items-center justify-center mb-4">
-            <select v-model="filters.bulan" @change="applyFilters" class="filter-select">
-              <option value="">Semua Bulan</option>
-              <option v-for="month in categories" :key="month" :value="month">
-                {{ month }}
-              </option>
-            </select>
-            
-            <select v-model="filters.tahun" @change="applyFilters" class="filter-select">
-              <option value="">Semua Tahun</option>
-              <option value="2023">2023</option>
-              <option value="2024">2024</option>
-              <option value="2025">2025</option>
-              <option value="2026">2026</option>
-            </select>
-            
-            <input 
-              v-model="filters.search" 
-              @input="applyFilters" 
-              type="text" 
-              placeholder="Cari laporan..." 
-              class="filter-input"
-            >
-          </div>
-          
-          <!-- Info -->
-          <div class="flex justify-center">
-            <div class="info-box">
-              <i class="fas fa-info-circle"></i>
-              <span>Laporan dibuat oleh Admin Diskominfo Kota Madiun</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Laporan List -->
+    <!-- Hanya daftar kartu laporan -->
+    <div v-else>
       <CardList :cards="laporanList" />
-      
-      <!-- Pagination -->
-      <div v-if="pagination && pagination.last_page > 1" class="pagination-section">
-        <div class="container mx-auto px-4 py-6">
-          <div class="flex justify-center items-center space-x-2">
-            <button 
-              @click="changePage(pagination.current_page - 1)"
-              :disabled="pagination.current_page === 1"
-              class="pagination-button"
-              :class="{ 'disabled': pagination.current_page === 1 }"
-            >
-              Sebelumnya
-            </button>
-            
-            <span class="pagination-info">
-              Halaman {{ pagination.current_page }} dari {{ pagination.last_page }}
-            </span>
-            
-            <button 
-              @click="changePage(pagination.current_page + 1)"
-              :disabled="pagination.current_page === pagination.last_page"
-              class="pagination-button"
-              :class="{ 'disabled': pagination.current_page === pagination.last_page }"
-            >
-              Selanjutnya
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -135,15 +40,21 @@ export default {
     const loading = ref(true);
     const error = ref(null);
     const laporanList = ref([]);
-    const statistics = ref(null);
-    const categories = ref([]);
-    const pagination = ref(null);
-    const filters = ref({
-      bulan: '',
-      tahun: '',
-      search: ''
-    });
 
+    const buildFileUrl = (path) => {
+      if (!path) return null;
+      if (path.startsWith('http://') || path.startsWith('https://')) {
+        return path;
+      }
+      const base = import.meta?.env?.VITE_API_BASE_URL?.replace(/\/api$/, '') || 'http://localhost:8000';
+      return `${base}/${path.replace(/^\/+/, '')}`;
+    };
+
+    const isImagePath = (path) => {
+      if (!path) return false;
+      const clean = path.split('?')[0].toLowerCase();
+      return clean.endsWith('.jpg') || clean.endsWith('.jpeg') || clean.endsWith('.png') || clean.endsWith('.webp') || clean.endsWith('.gif');
+    };
 
     const fetchLaporanPengaduan = async () => {
       try {
@@ -153,9 +64,7 @@ export default {
         console.log('Fetching publikasi pengaduan...');
         
         const params = {
-          page: pagination.value?.current_page || 1,
-          kategori: 'pengaduan',
-          ...filters.value
+          kategori: 'pengaduan'
         };
         
         console.log('Request params:', params);
@@ -166,29 +75,36 @@ export default {
         console.log('Response data:', response.data);
         
         if (response.data && response.data.data) {
-          laporanList.value = response.data.data.map(item => ({
-            id: item.id,
-            foto: item.file_path ? item.file_path : '/src/assets/img/berita/laporan1.jpeg',
-            judul: item.judul,
-            tanggal: new Date(item.published_at || item.created_at).toLocaleDateString('id-ID', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            }),
-            penjelasan: item.ringkasan || item.isi,
-            status: item.meta?.status || 'diproses',
-            prioritas: item.meta?.total_pengaduan ? `${item.meta.total_pengaduan} Total` : 'Normal',
-            kategori: item.kategori,
-            link: `#laporan-${item.id}`,
-            period: item.meta?.period,
-            total_pengaduan: item.meta?.total_pengaduan,
-            pengaduan_selesai: item.meta?.pengaduan_selesai,
-            pengaduan_diproses: item.meta?.pengaduan_diproses,
-            pengaduan_ditolak: item.meta?.pengaduan_ditolak,
-            file_lampiran: item.file_path
-          }));
-          
-          pagination.value = response.data.pagination;
+          laporanList.value = response.data.data.map(item => {
+            const rawPath = item.file_path;
+            const fileUrl = rawPath ? buildFileUrl(rawPath) : null;
+            const isImage = isImagePath(rawPath);
+
+            return {
+              id: item.id,
+              // thumbnail: pakai gambar file jika image, kalau bukan pakai gambar default
+              foto: isImage && fileUrl ? fileUrl : '/src/assets/img/berita/laporan1.jpeg',
+              judul: item.judul,
+              tanggal: new Date(item.published_at || item.created_at).toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              }),
+              penjelasan: item.ringkasan || item.isi,
+              status: item.meta?.status || 'diproses',
+              prioritas: item.meta?.total_pengaduan ? `${item.meta.total_pengaduan} Total` : 'Normal',
+              kategori: item.kategori,
+              link: `#laporan-${item.id}`,
+              period: item.meta?.period,
+              total_pengaduan: item.meta?.total_pengaduan,
+              pengaduan_selesai: item.meta?.pengaduan_selesai,
+              pengaduan_diproses: item.meta?.pengaduan_diproses,
+              pengaduan_ditolak: item.meta?.pengaduan_ditolak,
+              // file lampiran selalu pakai URL penuh untuk download
+              file_lampiran: fileUrl
+            };
+          });
+
           console.log('Data processed successfully. Total items:', laporanList.value.length);
         } else {
           console.error('Invalid response structure:', response);
@@ -216,65 +132,20 @@ export default {
       }
     };
 
-    const fetchStatistics = async () => {
-      try {
-        const response = await publikasiService.getStatistics({ kategori: 'pengaduan' });
-        statistics.value = response.data.data;
-      } catch (err) {
-        console.error('Error fetching pengaduan statistics:', err);
-        // Tidak set error utama karena ini bukan data kritis
-      }
-    };
-
-    const fetchCategories = async () => {
-      try {
-        const response = await publikasiService.getMonths({ kategori: 'pengaduan' });
-        categories.value = response.data.data;
-      } catch (err) {
-        console.error('Error fetching months:', err);
-        // Tidak set error utama karena ini bukan data kritis
-      }
-    };
-
-    const applyFilters = () => {
-      pagination.value = null;
-      fetchLaporanPengaduan();
-    };
-
-    const changePage = (page) => {
-      if (page >= 1 && page <= pagination.value?.last_page) {
-        pagination.value.current_page = page;
-        fetchLaporanPengaduan();
-      }
-    };
-
-
-
     onMounted(async () => {
       try {
-        // Fetch data secara parallel tapi handle error secara individual
-        await Promise.allSettled([
-          fetchStatistics(),
-          fetchCategories(),
-          fetchLaporanPengaduan()
-        ]);
+        await fetchLaporanPengaduan();
       } catch (err) {
         console.error('Error in onMounted:', err);
         error.value = 'Gagal memuat data. Silakan coba lagi.';
       }
     });
 
-          return {
+    return {
         loading,
         error,
         laporanList,
-        statistics,
-        categories,
-        pagination,
-        filters,
         fetchLaporanPengaduan,
-        applyFilters,
-        changePage
       };
   }
 };

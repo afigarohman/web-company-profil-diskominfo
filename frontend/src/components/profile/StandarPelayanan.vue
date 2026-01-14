@@ -12,25 +12,31 @@
       <!-- Content -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         <!-- Dynamic Cards -->
-        <div
+        <button
           v-for="profil in standarPelayananList.slice(0, 3)"
           :key="profil.id"
-          class="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300"
+          type="button"
+          class="text-left bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          @click="openProfil(profil)"
         >
           <!-- Image Section with Date Overlay -->
-          <div v-if="profil.gambar" class="relative">
-            <img :src="`http://localhost:8000/storage/${profil.gambar}`" :alt="profil.title" class="w-full object-contain bg-gray-50 max-h-[900px]">
+          <div v-if="profil.gambar_url || profil.gambar" class="relative">
+            <img
+              :src="profil.gambar_url || buildStorageUrl(profil.gambar)"
+              :alt="profil.displayTitle"
+              class="w-full object-cover bg-gray-50 h-48"
+            >
             <!-- Date overlay at bottom left -->
             <div class="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs font-medium">
-              {{ formatDate(profil.tanggal || profil.created_at) }}
+              {{ profil.displayDate }}
             </div>
           </div>
 
           <!-- No Image Fallback -->
           <div v-else class="p-6">
-            <h4 class="text-lg font-bold text-gray-800 mb-2">{{ profil.title || 'Judul Tidak Tersedia' }}</h4>
+            <h4 class="text-lg font-bold text-gray-800 mb-2">{{ profil.displayTitle }}</h4>
             <div class="flex items-center justify-between text-sm">
-              <span class="text-gray-500">{{ formatDate(profil.tanggal || profil.created_at) }}</span>
+              <span class="text-gray-500">{{ profil.displayDate }}</span>
               <div class="flex items-center text-green-600">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -39,7 +45,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </button>
 
         <!-- Fallback static cards if no data -->
         <div v-if="standarPelayananList.length === 0" class="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
@@ -93,8 +99,17 @@ export default {
   methods: {
     async fetchStandarPelayanan() {
       try {
-        const response = await profilService.getProfilByCategory('Standar Pelayanan')
-        this.standarPelayananList = response.data || []
+        // Kategori mengikuti isian pada menu Profil admin
+        const response = await profilService.getProfilByCategory('standar-pelayanan')
+        const raw = response.data
+        const items = Array.isArray(raw) ? raw : (raw ? [raw] : [])
+        this.standarPelayananList = items.map(item => ({
+          ...item,
+          displayTitle: item.title || item.judul || 'Judul Tidak Tersedia',
+          displayDate: this.formatDate(item.tanggal || item.created_at),
+          pdf_url: item.pdf_url || (item.pdf ? this.buildStorageUrl(item.pdf) : null),
+          gambar_url: item.gambar_url || (item.gambar ? this.buildStorageUrl(item.gambar) : null)
+        }))
       } catch (error) {
         console.error('Error fetching standar pelayanan:', error)
         this.standarPelayananList = []
@@ -108,6 +123,19 @@ export default {
         month: 'long',
         day: 'numeric'
       })
+    },
+    buildStorageUrl(path) {
+      if (!path) return ''
+      const base = import.meta?.env?.VITE_API_BASE_URL?.replace(/\/api$/, '') || 'http://localhost:8000'
+      return `${base}/storage/${path}`
+    },
+    openProfil(profil) {
+      if (profil?.pdf_url) {
+        window.open(profil.pdf_url, '_blank', 'noopener,noreferrer')
+      } else {
+        // Fallback: arahkan ke halaman detail jika tidak ada PDF
+        this.$router.push({ path: '/standar-pelayanan-detail' })
+      }
     }
   }
 }

@@ -159,6 +159,25 @@ class PublikasiController extends Controller
             ->with('success', 'Publikasi berhasil dihapus!');
     }
 
+    /**
+     * Toggle status publish/draft dari halaman index.
+     */
+    public function togglePublish(Publikasi $publikasi)
+    {
+        $publikasi->is_published = ! $publikasi->is_published;
+
+        // Jika baru dipublish dan tanggal kosong, set sekarang
+        if ($publikasi->is_published && ! $publikasi->published_at) {
+            $publikasi->published_at = now();
+        }
+
+        $publikasi->save();
+
+        return redirect()
+            ->route('admin.publikasi.index')
+            ->with('success', 'Status publikasi berhasil diperbarui.');
+    }
+
     private function generateMetaData($kategori)
     {
         switch ($kategori) {

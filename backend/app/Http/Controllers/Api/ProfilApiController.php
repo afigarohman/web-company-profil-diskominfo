@@ -110,7 +110,17 @@ class ProfilApiController extends Controller
 
     public function byCategory($kategori)
     {
-        $profil = Profil::where('kategori', $kategori)->first();
+        // Gunakan data terbaru untuk kategori tersebut
+        $profil = Profil::where('kategori', $kategori)
+            ->orderByDesc('id')
+            ->first();
+
+        if ($profil) {
+            // Pastikan URL file ikut dikirim (fallback kalau appends belum terbaca)
+            $profil->pdf_url = $profil->pdf ? asset('storage/' . $profil->pdf) : null;
+            $profil->gambar_url = $profil->gambar ? asset('storage/' . $profil->gambar) : null;
+        }
+
         return response()->json($profil);
     }
 

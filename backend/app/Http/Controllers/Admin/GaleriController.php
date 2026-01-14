@@ -3,40 +3,40 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Infografis;
+use App\Models\Galeri;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-class InfografisController extends Controller
+class GaleriController extends Controller
 {
     public function __construct()
     {
-        // Middleware untuk membatasi akses infografis hanya untuk admin
+        // Middleware untuk membatasi akses galeri hanya untuk admin
         $this->middleware('auth:admin');
         $this->middleware(function ($request, $next) {
             if (Auth::guard('admin')->user()->role !== 'admin') {
-                return redirect()->route('admin.berita.index')->with('error', 'Anda tidak memiliki akses ke halaman infografis.');
+                return redirect()->route('admin.berita.index')->with('error', 'Anda tidak memiliki akses ke halaman galeri.');
             }
             return $next($request);
         });
     }
 
-    // Menampilkan daftar infografis
+    // Menampilkan daftar galeri
     public function index()
     {
-        $infografis = Infografis::latest()->get(); // Mengambil semua infografis terbaru
-        return view('admin.infografis.index', compact('infografis'));
+        $galeri = Galeri::latest()->get(); // Mengambil semua galeri terbaru
+        return view('admin.galeri.index', compact('galeri'));
     }
 
-    // Menampilkan form untuk menambah infografis
+    // Menampilkan form untuk menambah galeri
     public function create()
     {
-        return view('admin.infografis.create');
+        return view('admin.galeri.create');
     }
 
-    // Menyimpan infografis baru ke database
+    // Menyimpan galeri baru ke database
     public function store(Request $request)
     {
         // Validasi input
@@ -44,11 +44,11 @@ class InfografisController extends Controller
             'judul' => 'required|string|max:255',
             'deskripsi' => 'nullable',
             'tanggal' => 'required|date',
-            'gambar' => 'nullable|array|max:3',
+            'gambar' => 'nullable|array|max:10',
             'gambar.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ], [
-            'judul.required' => 'Judul infografis harus diisi.',
-            'tanggal.required' => 'Tanggal infografis harus diisi.',
+            'judul.required' => 'Judul galeri harus diisi.',
+            'tanggal.required' => 'Tanggal galeri harus diisi.',
         ]);
 
         // Menyimpan gambar (banyak)
@@ -59,33 +59,33 @@ class InfografisController extends Controller
                     continue;
                 }
                 $gambarPaths[] = $file->storeAs(
-                    'infografis',
+                    'galeri',
                     time() . '-' . $file->getClientOriginalName(),
                     'public'
                 );
             }
         }
 
-        // Menyimpan infografis ke database
-        Infografis::create([
+        // Menyimpan galeri ke database
+        Galeri::create([
             'judul' => $request->judul,
             'deskripsi' => $request->deskripsi,
             'tanggal' => Carbon::parse($request->tanggal), // Convert to Carbon instance
             'gambar' => json_encode($gambarPaths),
         ]);
 
-        return redirect()->route('admin.infografis.index')->with('success', 'Infografis berhasil ditambahkan.');
+        return redirect()->route('admin.galeri.index')->with('success', 'Galeri berhasil ditambahkan.');
     }
 
-    // Menampilkan form untuk mengedit infografis
-    public function edit(Infografis $infografis)
+    // Menampilkan form untuk mengedit galeri
+    public function edit(Galeri $galeri)
     {
-        $infografis->tanggal = \Carbon\Carbon::parse($infografis->tanggal);
-        return view('admin.infografis.edit', compact('infografis'));
+        $galeri->tanggal = \Carbon\Carbon::parse($galeri->tanggal);
+        return view('admin.galeri.edit', compact('galeri'));
     }
 
-    // Memperbarui infografis di database
-    public function update(Request $request, Infografis $infografis)
+    // Memperbarui galeri di database
+    public function update(Request $request, Galeri $galeri)
     {
         // Validasi input
         $request->validate([
@@ -95,23 +95,23 @@ class InfografisController extends Controller
             'gambar' => 'nullable|array',
             'gambar.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ], [
-            'judul.required' => 'Judul infografis harus diisi.',
-            'tanggal.required' => 'Tanggal infografis harus diisi.',
+            'judul.required' => 'Judul galeri harus diisi.',
+            'tanggal.required' => 'Tanggal galeri harus diisi.',
         ]);
 
         // Jika ada gambar baru, hapus gambar lama dan simpan gambar baru
         if ($request->hasFile('gambar')) {
             // Hapus semua gambar lama
-            if ($infografis->gambar) {
-                $existing = json_decode($infografis->gambar, true);
+            if ($galeri->gambar) {
+                $existing = json_decode($galeri->gambar, true);
                 if (is_array($existing)) {
                     foreach ($existing as $path) {
                         if ($path && Storage::disk('public')->exists($path)) {
                             Storage::disk('public')->delete($path);
                         }
                     }
-                } elseif (Storage::disk('public')->exists($infografis->gambar)) {
-                    Storage::disk('public')->delete($infografis->gambar);
+                } elseif (Storage::disk('public')->exists($galeri->gambar)) {
+                    Storage::disk('public')->delete($galeri->gambar);
                 }
             }
 
@@ -119,44 +119,45 @@ class InfografisController extends Controller
             $gambarPaths = [];
             foreach ($request->file('gambar') as $file) {
                 $gambarPaths[] = $file->storeAs(
-                    'infografis',
+                    'galeri',
                     time() . '-' . $file->getClientOriginalName(),
                     'public'
                 );
             }
-            $infografis->gambar = json_encode($gambarPaths);
+            $galeri->gambar = json_encode($gambarPaths);
         }
 
-        // Update infografis
-        $infografis->update([
+        // Update galeri
+        $galeri->update([
             'judul' => $request->judul,
             'deskripsi' => $request->deskripsi,
             'tanggal' => Carbon::parse($request->tanggal), // Convert to Carbon instance
         ]);
 
-        return redirect()->route('admin.infografis.index')->with('success', 'Infografis berhasil diperbarui.');
+        return redirect()->route('admin.galeri.index')->with('success', 'Galeri berhasil diperbarui.');
     }
 
-    // Menghapus infografis
-    public function destroy(Infografis $infografis)
+    // Menghapus galeri
+    public function destroy(Galeri $galeri)
     {
         // Hapus semua gambar dari storage jika ada (mendukung banyak gambar)
-        if ($infografis->gambar) {
-            $existing = json_decode($infografis->gambar, true);
+        if ($galeri->gambar) {
+            $existing = json_decode($galeri->gambar, true);
             if (is_array($existing)) {
                 foreach ($existing as $path) {
                     if ($path && Storage::disk('public')->exists($path)) {
                         Storage::disk('public')->delete($path);
                     }
                 }
-            } elseif (Storage::disk('public')->exists($infografis->gambar)) {
-                Storage::disk('public')->delete($infografis->gambar);
+            } elseif (Storage::disk('public')->exists($galeri->gambar)) {
+                Storage::disk('public')->delete($galeri->gambar);
             }
         }
 
-        // Hapus infografis dari database
-        $infografis->delete();
+        // Hapus galeri dari database
+        $galeri->delete();
 
-        return redirect()->route('admin.infografis.index')->with('success', 'Infografis berhasil dihapus.');
+        return redirect()->route('admin.galeri.index')->with('success', 'Galeri berhasil dihapus.');
     }
 }
+

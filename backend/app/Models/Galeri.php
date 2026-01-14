@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Infografis extends Model
+class Galeri extends Model
 {
     use HasFactory;
 
-    // Tentukan tabel yang digunakan oleh model ini (jika tidak default 'infografis')
-    protected $table = 'infografis';
+    // Tentukan tabel yang digunakan oleh model ini
+    protected $table = 'galeri';
 
     // Tentukan kolom yang dapat diisi mass-assignment
     protected $fillable = [
@@ -54,3 +54,4 @@ class Infografis extends Model
         return array_map(fn ($path) => asset('storage/' . $path), $paths);
     }
 }
+

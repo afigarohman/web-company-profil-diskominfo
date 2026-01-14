@@ -2,44 +2,25 @@
   <div class="card-list-container">
     <div class="card-grid">
       <div v-for="card in cards" :key="card.id" class="card">
-        <div class="card-header">
-          <div class="card-badges">
-            <span class="badge status-badge published">
-              {{ card.status }}
-            </span>
-            <span class="badge period-badge">
-              {{ card.period }}
-            </span>
-          </div>
+        <!-- Thumbnail -->
+        <div v-if="card.foto" class="card-thumb-wrapper">
+          <img
+            :src="card.foto"
+            :alt="card.judul"
+            class="card-thumb"
+          />
         </div>
+
         <div class="card-content">
           <h3 class="card-title">{{ card.judul }}</h3>
           <p class="card-date">{{ card.tanggal }}</p>
           <p class="card-description">{{ card.penjelasan }}</p>
           
-          <!-- Statistics -->
-          <div class="card-stats">
-            <div class="stat-item">
-              <span class="stat-label">Total:</span>
-              <span class="stat-value">{{ card.total_pengaduan }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Selesai:</span>
-              <span class="stat-value success">{{ card.pengaduan_selesai }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Diproses:</span>
-              <span class="stat-value processing">{{ card.pengaduan_diproses }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Ditolak:</span>
-              <span class="stat-value rejected">{{ card.pengaduan_ditolak }}</span>
-            </div>
-          </div>
+         
           
           <!-- Card Actions -->
           <div class="card-actions">
-            <router-link :to="`/pengaduan/${card.id}`" class="detail-button">
+            <router-link :to="{ name: detailRouteName, params: { id: card.id } }" class="detail-button">
               <i class="fas fa-eye"></i>
               Lihat Detail
             </router-link>
@@ -65,6 +46,11 @@ export default {
     cards: {
       type: Array,
       required: true
+    },
+    // route name untuk halaman detail (mis: 'pengaduan.detail' atau 'penerima.detail')
+    detailRouteName: {
+      type: String,
+      default: 'pengaduan.detail'
     }
   }
 };
@@ -95,6 +81,20 @@ export default {
 .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card-thumb-wrapper {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: #f3f4f6;
+}
+
+.card-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .card-header {

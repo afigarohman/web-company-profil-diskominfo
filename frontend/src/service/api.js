@@ -312,6 +312,56 @@ export const publikasiService = {
   }
 };
 
+// Infografis service
+export const infografisService = {
+  // Get list of infografis (optionally limited)
+  async getAll(params = {}) {
+    try {
+      const response = await apiClient.get('/infografis', { params });
+      return response;
+    } catch (error) {
+      console.error('Error fetching infografis:', error);
+      throw error;
+    }
+  },
+
+  // Get single infografis by ID
+  async getById(id) {
+    try {
+      const response = await apiClient.get(`/infografis/${id}`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching infografis detail:', error);
+      throw error;
+    }
+  }
+};
+
+// Galeri service
+export const galeriService = {
+  // Get list of galeri (optionally limited)
+  async getAll(params = {}) {
+    try {
+      const response = await apiClient.get('/galeri', { params });
+      return response;
+    } catch (error) {
+      console.error('Error fetching galeri:', error);
+      throw error;
+    }
+  },
+
+  // Get single galeri by ID
+  async getById(id) {
+    try {
+      const response = await apiClient.get(`/galeri/${id}`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching galeri detail:', error);
+      throw error;
+    }
+  }
+};
+
 // Legacy laporan pengaduan service (for backward compatibility)
 export const laporanPengaduanService = {
   // Get laporan pengaduan by ID

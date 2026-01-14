@@ -95,9 +95,9 @@ export default {
     async fetchProfilData() {
       try {
         this.loading = true
-        const response = await fetch('http://localhost:8000/api/profile-page/sekilas-dinas')
-        const data = await response.json()
-        this.profilData = data
+        // Ambil konten dari tabel profil berdasarkan kategori yang diatur di menu admin
+        const response = await profilService.getProfilByCategory('sekilas-dinas')
+        this.profilData = response.data
       } catch (error) {
         console.error('Error fetching sekilas dinas data:', error)
         this.profilData = null

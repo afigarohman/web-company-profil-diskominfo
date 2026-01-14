@@ -24,10 +24,12 @@
 
             </div>
             <div class="mb-3">
-                <label for="gambar" class="form-label">Gambar</label>
-                <input type="file" name="gambar" class="form-control">
-                @if ($infografis->gambar)
-                    <img src="{{ asset('storage/' . $infografis->gambar) }}" class="img-fluid mt-3" width="100%">
+                <label for="gambar" class="form-label">Gambar (boleh lebih dari satu)</label>
+                <input type="file" name="gambar[]" id="gambar" class="form-control" multiple>
+                @if ($infografis->gambar_url)
+                    <div class="mt-3">
+                        <img src="{{ $infografis->gambar_url }}" class="img-fluid" width="100%">
+                    </div>
                 @endif
             </div>
             <button type="submit" class="btn btn-primary">Update</button>
